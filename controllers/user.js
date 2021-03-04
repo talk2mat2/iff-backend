@@ -81,11 +81,13 @@ exports.Register = async (req, res) => {
       fullName,
       Email,
       Password: Passwordhash,
+      referrerCode: referrerCode && referrerCode,
     });
     await newUser.save();
+    //first level referrer
     const referrer = await UserSchema.findOne({ referralCode: referrerCode });
     console.log(referrerCode);
-    if (referrer) {
+    if (referrer && referrer.referrals.length !== 2) {
       console.log(referrer);
       referrer.referrals.push({
         _id: newUser._id,
@@ -94,6 +96,36 @@ exports.Register = async (req, res) => {
       });
       await referrer.save();
     }
+
+    if (referrer && referrer.referrerCode) {
+      const referrersReferrer = await UserSchema.findOne({
+        referralCode: referrer.referrerCode,
+      });
+      console.log("referrerefer", referrersReferrer);
+      if (referrersReferrer && referrersReferrer.downLiners !== 4) {
+        //push to grand referrer
+        referrersReferrer.downLiners.push({
+          _id: newUser._id,
+          fullName: newUser.fullName,
+          Email: newUser.Email,
+        });
+        await referrersReferrer.save();
+        //then we updte new user with the downliners(water position guy/grand referrer) account to pay to
+        newUser.pay_to_BankName = referrersReferrer.bank_Name;
+        newUser.pay_to_BankNumber = referrersReferrer.bank_Acct_Number;
+        newUser.pay_to_BankUserName = referrersReferrer.fullName;
+        await newUser.save();
+      }
+      // if (referrersReferrer && referrersReferrer.downLiners === 4) {
+      //   //push to grand referrer
+      //   referrersReferrer.downLiners.push({
+      //     _id: newUser._id,
+      //     fullName: newUser.fullName,
+      //     Email: newUser.Email,
+      //   });
+      // }
+    }
+
     return res.status(200).send({ message: "account registered successfully" });
   } catch (err) {
     console.log(err);
@@ -102,6 +134,54 @@ exports.Register = async (req, res) => {
       err: err,
     });
   }
+};
+
+exports.UpdateMyAcctNumber = async (req, res) => {
+  const { bank_Name, bank_Acct_Number } = req.body;
+  if (!bank_Name) {
+    return res.status(404).json({ message: "pls provide your bank_Name" });
+  }
+  if (!bank_Acct_Number) {
+    return res.status(404).json({ message: "pls provide bank_Acct_Number" });
+  }
+  if (bank_Acct_Number && bank_Acct_Number.length > 15) {
+    return res.status(404).json({ message: "account nmber is invalid" });
+  }
+
+  const params = { bank_Name, bank_Acct_Number };
+
+  UserSchema.findByIdAndUpdate(
+    { _id: req.body.id },
+    {
+      $set: params,
+    },
+    { new: true, useFindAndModify: false }
+  )
+    .select("-Password")
+    .then((user) => {
+      return res.json({
+        userdata: user,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(401).send({ err: "an error occured,unable to send" });
+    });
+  // bank_Name: { type: String },
+  // bank_Acct_Number: { type: String },
+};
+
+exports.UpdateClient = (req, res) => {
+  UserSchema.findById(req.body.id)
+    .then((user) => {
+      return res.json({
+        userdata: user,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(401).send({ err: "an error occured,unable to send" });
+    });
 };
 
 // exports.UpdateUserData = async function (req, res) {

@@ -3,13 +3,32 @@ const bcrypt = require("bcrypt");
 const { Schema } = mongoose;
 const shortid = require("shortid");
 
+function makeid() {
+  var result = "";
+  var characters = "xyz0123456789";
+  var charactersLength = characters.length;
+  for (var i = 0; i < 10; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
+
 const UserSchema = new Schema({
   fullName: { type: String, required: true }, // String is shorthand for {type: String}
   Email: { type: String, required: true, unique: true },
   Password: { type: String, required: true },
-  referralCode: { type: String, default: shortid.generate },
-  referrals: [{ _id: String, fullName: String, Email: String }],
+  level: { type: Number, default: 1 }, //level 1 =fire,2=wind,3=water//id downliners length>0 it becomes water(gifted)
+  referralCode: { type: String, default: makeid },
+  referrerCode: { type: String }, //introduced by
+  pay_to_BankName: { type: String },
+  pay_to_BankNumber: { type: String },
+  pay_to_BankUserName: { type: String },
+  bank_Name: { type: String },
+  bank_Acct_Number: { type: String },
+  referrals: [{ _id: String, fullName: String, Email: String }], //first generation ,i.e 2 people/i introduced
+  downLiners: [{ _id: String, fullName: String, Email: String }], //downliners is 2cond generations of referals 4people
 });
+//if the confirm 4 payment, you remove yourself from the board
 
 UserSchema.methods.verifyPassword = async function (Password) {
   const match = await bcrypt.compare(Password, this.Password);
