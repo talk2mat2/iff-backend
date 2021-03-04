@@ -18,7 +18,7 @@ App.set("views", path.join(__dirname, "views"));
 App.set("view engine", "ejs");
 App.use("/users", UserRoutes);
 App.get("/", (req, res) => {
-  res.status(200).send({ message: "ailerserver" });
+  res.status(200).send({ message: "iff server" });
 });
 
 const server = App.listen(Port, (err, successs) => {
