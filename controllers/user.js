@@ -87,7 +87,7 @@ exports.Register = async (req, res) => {
     //first level referrer
     const referrer = await UserSchema.findOne({ referralCode: referrerCode });
     console.log(referrerCode);
-    if (referrer && referrer.referrals.length !== 2) {
+    if (referrer && referrer.referrals.length < 3) {
       console.log(referrer);
       referrer.referrals.push({
         _id: newUser._id,
@@ -102,12 +102,13 @@ exports.Register = async (req, res) => {
         referralCode: referrer.referrerCode,
       });
       console.log("referrerefer", referrersReferrer);
-      if (referrersReferrer && referrersReferrer.downLiners !== 4) {
+      if (referrersReferrer && referrersReferrer.downLiners < 5) {
         //push to grand referrer
         referrersReferrer.downLiners.push({
           _id: newUser._id,
           fullName: newUser.fullName,
           Email: newUser.Email,
+          paymentStatus: false,
         });
         await referrersReferrer.save();
         //then we updte new user with the downliners(water position guy/grand referrer) account to pay to
@@ -181,6 +182,33 @@ exports.UpdateClient = (req, res) => {
     .catch((err) => {
       console.log(err);
       res.status(401).send({ err: "an error occured,unable to send" });
+    });
+};
+
+exports.ConfirmPaymentReceived = async (req, res) => {
+  const { payerId } = req.body;
+
+  if (!payerId) {
+    return res.status(404).json({ message: "pls provide your payerId" });
+  }
+  UserSchema.findById(req.body.id)
+    .then((user) => {
+      console.log(user);
+      user.downLiners.map(async (payers) => {
+        if ((payers._id = payerId)) {
+          // console.log(payers);
+          payers[payers._Id].paymentStatus = true;
+          await user.save();
+          // payment_status: false,
+          this.UpdateClient(req, res);
+        }
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      return res
+        .status(404)
+        .json({ message: "an error occured try again or contact admin" });
     });
 };
 
