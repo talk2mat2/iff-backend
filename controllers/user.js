@@ -67,13 +67,13 @@ exports.Register = async (req, res) => {
       message: "oops! you didnt fill all values required,kindly try again",
     });
   }
-  await UserSchema.findOne({ Email: Email }).then((user) => {
-    if (user) {
-      return res.status(401).send({
-        message: `a user with email ${Email}is already registred, try to login`,
-      });
-    }
-  });
+
+  const existingUser = await UserSchema.findOne({ Email: Email });
+  if (existingUser) {
+    return res.status(401).json({
+      message: `a user with email ${Email}is already registred, try to login`,
+    });
+  }
 
   try {
     const Passwordhash = bcrypt.hashSync(Password, 10);
@@ -87,7 +87,7 @@ exports.Register = async (req, res) => {
     //first level referrer
     const referrer = await UserSchema.findOne({ referralCode: referrerCode });
     console.log(referrerCode);
-    if (referrer && referrer.referrals.length < 3) {
+    if (referrer && referrer.referrals.length < 2) {
       console.log(referrer);
       referrer.referrals.push({
         _id: newUser._id,
@@ -102,7 +102,7 @@ exports.Register = async (req, res) => {
         referralCode: referrer.referrerCode,
       });
       console.log("referrerefer", referrersReferrer);
-      if (referrersReferrer && referrersReferrer.downLiners < 5) {
+      if (referrersReferrer && referrersReferrer.downLiners.length < 4) {
         //push to grand referrer
         referrersReferrer.downLiners.push({
           _id: newUser._id,
@@ -117,14 +117,6 @@ exports.Register = async (req, res) => {
         newUser.pay_to_BankUserName = referrersReferrer.fullName;
         await newUser.save();
       }
-      // if (referrersReferrer && referrersReferrer.downLiners === 4) {
-      //   //push to grand referrer
-      //   referrersReferrer.downLiners.push({
-      //     _id: newUser._id,
-      //     fullName: newUser.fullName,
-      //     Email: newUser.Email,
-      //   });
-      // }
     }
 
     return res.status(200).send({ message: "account registered successfully" });
@@ -195,7 +187,7 @@ exports.ConfirmPaymentReceived = async (req, res) => {
     .then((user) => {
       // console.log(user);
       user.downLiners.map(async (payers) => {
-        if ((payers._id = payerId)) {
+        if (payers._id === payerId) {
           // console.log(payers);
           // payers[payers._Id].paymentStatus = true;
           payers["paymentStatus"] = true;
