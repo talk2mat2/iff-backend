@@ -26,7 +26,9 @@ const UserSchema = new Schema({
   bank_Name: { type: String },
   bank_Acct_Number: { type: String },
   referrals: [{ _id: String, fullName: String, Email: String }], //first generation ,i.e 2 people/i introduced
-  downLiners: [{ _id: String, fullName: String, Email: String }], //downliners is 2cond generations of referals 4people
+  downLiners: [
+    { _id: String, fullName: String, Email: String, paymentStatus: Boolean },
+  ], //downliners is 2cond generations of referals 4people
 });
 //if the confirm 4 payment, you remove yourself from the board
 

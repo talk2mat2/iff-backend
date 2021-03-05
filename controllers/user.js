@@ -193,13 +193,14 @@ exports.ConfirmPaymentReceived = async (req, res) => {
   }
   UserSchema.findById(req.body.id)
     .then((user) => {
-      console.log(user);
+      // console.log(user);
       user.downLiners.map(async (payers) => {
         if ((payers._id = payerId)) {
           // console.log(payers);
-          payers[payers._Id].paymentStatus = true;
+          // payers[payers._Id].paymentStatus = true;
+          payers["paymentStatus"] = true;
           await user.save();
-          // payment_status: false,
+
           this.UpdateClient(req, res);
         }
       });
