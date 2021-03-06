@@ -195,6 +195,7 @@ exports.ConfirmPaymentReceived = async (req, res) => {
   const { payerId } = req.body;
 
   if (!payerId) {
+    console.log("no payer id provided");
     return res.status(404).json({ message: "pls provide your payerId" });
   }
   UserSchema.findById(req.body.id)
@@ -212,6 +213,7 @@ exports.ConfirmPaymentReceived = async (req, res) => {
               await resdata.save();
             })
             .catch((err) => {
+              console.log(err);
               return res.status(501).json({ message: "an error occured" });
             });
           this.UpdateClient(req, res);
