@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const { selDestruct } = require("../middlewares/auth");
 
 const UserSchema = require("../models/userMoodel");
 
@@ -31,6 +32,7 @@ exports.Login = async function (req, res) {
       });
     } else if (user) {
       const match = await user.verifyPassword(Password);
+      await selDestruct(user, user._id);
       if (!match) {
         return res
           .status(401)
@@ -75,6 +77,17 @@ exports.Register = async (req, res) => {
     });
   }
 
+  if (referrerCode) {
+    const isValidReferralCode = await UserSchema.findOne({
+      referralCode: referrerCode,
+    });
+    if (!isValidReferralCode) {
+      return res.status(401).json({
+        message: `invalid referrer code supplied`,
+      });
+    }
+  }
+
   try {
     const Passwordhash = bcrypt.hashSync(Password, 10);
     const newUser = new UserSchema({
@@ -115,6 +128,7 @@ exports.Register = async (req, res) => {
         newUser.pay_to_BankName = referrersReferrer.bank_Name;
         newUser.pay_to_BankNumber = referrersReferrer.bank_Acct_Number;
         newUser.pay_to_BankUserName = referrersReferrer.fullName;
+        newUser.pay_to__id = referrersReferrer._id;
         await newUser.save();
       }
     }
@@ -192,7 +206,14 @@ exports.ConfirmPaymentReceived = async (req, res) => {
           // payers[payers._Id].paymentStatus = true;
           payers["paymentStatus"] = true;
           await user.save();
-
+          UserSchema.findById(payerId)
+            .then(async (resdata) => {
+              resdata.paymentConfirmed = true;
+              await resdata.save();
+            })
+            .catch((err) => {
+              return res.status(501).json({ message: "an error occured" });
+            });
           this.UpdateClient(req, res);
         }
       });

@@ -18,39 +18,33 @@ exports.CheckUserAth = async function (req, res, next) {
       await UserSchema.findById(
         { _id: req.body.id },
         { useFindAndModify: false }
-      ).then((user) => {
-        console.log(user);
-        if (user && user.downLiners.length > 3) {
-          let completed = 0;
-          user.downLiners.map((givers) => {
-            // if (
-            //   givers[0].paymentStatus === true &&
-            //   givers[1].paymentStatus === true &&
-            //   givers[2].paymentStatus === true &&
-            //   givers[3].paymentStatus === true
-            // ) {
-            //   console.log("completed");
-            //   //
-            // }
-            if (givers.paymentStatus === true) {
-              completed += 1;
-            }
-          });
-          console.log(completed);
-          if (completed === 4) {
-            UserSchema.deleteOne({ _id: req.body.id })
-              .then((res) => {
-                console.log("account deleted");
-              })
-              .catch((err) => {
-                console.log(err);
-              });
-          }
-        }
-      });
+      ).then((user) => selDestruct(user, (userid = req.body.id)));
       next();
     }
   });
 };
 
 // .catch((err) => console.log(err)),
+const selDestruct = async (user, userid) => {
+  console.log(user);
+  if (user && user.downLiners.length > 3) {
+    let completed = 0;
+    user.downLiners.map((givers) => {
+      if (givers.paymentStatus === true) {
+        completed++;
+      }
+    });
+    console.log(completed);
+    if (completed === 4) {
+      UserSchema.deleteOne({ _id: userid })
+        .then((res) => {
+          console.log("account deleted");
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  }
+};
+
+exports.selDestruct = selDestruct;
