@@ -20,14 +20,16 @@ const UserSchema = new Schema({
   level: { type: Number, default: 1 }, //level 1 =fire,2=wind,3=water//id downliners length>0 it becomes water(gifted)
   referralCode: { type: String, default: makeid },
   referrerCode: { type: String }, //introduced by
+  mobile: { type: Number },
   pay_to_BankName: { type: String },
   pay_to_BankNumber: { type: String },
+  pay_to__mobile: { type: Number },
   pay_to_BankUserName: { type: String },
   pay_to__id: { type: String },
   bank_Name: { type: String },
   bank_Acct_Number: { type: String },
   paymentConfirmed: { type: Boolean, default: false },
-  referrals: [{ _id: String, fullName: String, Email: String }], //first generation ,i.e 2 people/i introduced
+  referrals: [{ _id: String, fullName: String, Email: String ,mobile:Number}], //first generation ,i.e 2 people/i introduced
   downLiners: [
     {
       _id: String,
@@ -35,6 +37,8 @@ const UserSchema = new Schema({
       Email: String,
       paymentStatus: Boolean,
       evidenImageUri: String,
+      mobile:Number,
+      introducedBy:String
     },
   ], //downliners is 2cond generations of referals 4people
 });

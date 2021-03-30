@@ -51,10 +51,17 @@ exports.Login = async function (req, res) {
 };
 
 exports.Register = async (req, res) => {
-  const { fullName, Email, Password, confirmPassword, referrerCode } = req.body;
+  console.log(req.body)
+  const { fullName, Email, Password, confirmPassword, referrerCode, mobile } = req.body;
 
   if (!fullName) {
     return res.status(404).json({ message: "pls provide your full name" });
+  }
+  if (!referrerCode) {
+    return res.status(404).json({ message: "you must provide a referrer code" });
+  }
+  if (!mobile) {
+    return res.status(404).json({ message: "pls provide a valid phone number" });
   }
   if (!validateEmail(Email)) {
     return res
@@ -86,12 +93,24 @@ exports.Register = async (req, res) => {
         message: `invalid referrer code supplied`,
       });
     }
+    if (isValidReferralCode && isValidReferralCode.referrals.length > 1) {
+      return res.status(501).json({
+        message: `the user with the supplied referrer code has reached a maximum of 2 members referrals`,
+      });
+    }
+    if (isValidReferralCode ) {
+     if(!isValidReferralCode.bank_Acct_Number){ return res.status(501).json({
+        message: `the user with the supplied referrer has not updated his/her bank account details`,
+      });}
+
+    }
   }
 
   try {
     const Passwordhash = bcrypt.hashSync(Password, 10);
     const newUser = new UserSchema({
       fullName,
+      mobile,
       Email,
       Password: Passwordhash,
       referrerCode: referrerCode && referrerCode,
@@ -101,11 +120,13 @@ exports.Register = async (req, res) => {
     const referrer = await UserSchema.findOne({ referralCode: referrerCode });
     console.log(referrerCode);
     if (referrer && referrer.referrals.length < 2) {
-      console.log(referrer);
+      // console.log(referrer);
       referrer.referrals.push({
         _id: newUser._id,
         fullName: newUser.fullName,
         Email: newUser.Email,
+        mobile: newUser.mobile,
+       
       });
       await referrer.save();
     }
@@ -122,6 +143,8 @@ exports.Register = async (req, res) => {
           fullName: newUser.fullName,
           Email: newUser.Email,
           paymentStatus: false,
+          mobile:newUser.mobile,
+          introducedBy:referrer.fullName
         });
         await referrersReferrer.save();
         //then we updte new user with the downliners(water position guy/grand referrer) account to pay to
@@ -129,6 +152,7 @@ exports.Register = async (req, res) => {
         newUser.pay_to_BankNumber = referrersReferrer.bank_Acct_Number;
         newUser.pay_to_BankUserName = referrersReferrer.fullName;
         newUser.pay_to__id = referrersReferrer._id;
+        newUser.pay_to__mobile = referrersReferrer.mobile;
         await newUser.save();
       }
     }
