@@ -86,8 +86,8 @@ exports.sendmail= async function (email,confirmationCode,res) {
     html:  `<h1>Iff Email Confirmation</h1> <br/>
     <h2>Hello ${email}</h2>
     <p>Thank you for your interest in <b>IFF- (Intergrity Family And Friends)</b> . Please confirm your email by clicking on the following link
-    </p> <a href=http://${process.env.proxyUrl}/verifyEmail/?token=${confirmationCode}&email=${email}> click here </a>
-    <p>or by clicking on this button </p><a href=http://${process.env.proxyUrl}/verifyEmail/?token=${confirmationCode}&email=${email}> <button  style="color:white;background-color:tomato;">Click here</button><a/>
+    </p> <a href=${process.env.proxyUrl}/verifyEmail/?token=${confirmationCode}&email=${email}> click here </a>
+    <p>or by clicking on this button </p><a href=${process.env.proxyUrl}/verifyEmail/?token=${confirmationCode}&email=${email}> <button  style="color:white;background-color:tomato;">Click here</button><a/>
    <p> Cheers,</>
 <p>Iff - Intergrity Family And Friends</>
     </div>`,
