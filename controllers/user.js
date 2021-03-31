@@ -1,6 +1,9 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { selDestruct } = require("../middlewares/auth");
+var uniqid = require('uniqid');
+const TempRegSchema = require('../models/tempRegModel')
+const {sendmail} = require('../middlewares/mailer')
 
 const UserSchema = require("../models/userMoodel");
 
@@ -74,6 +77,20 @@ exports.Register = async (req, res) => {
   if (!confirmPassword || !Password || !Email) {
     return res.status(404).json({
       message: "oops! you didnt fill all values required,kindly try again",
+    });
+  }
+
+  const checkIsConfirmdedemail = await TempRegSchema.findOne({Email:Email})
+  if(checkIsConfirmdedemail){
+    if(!checkIsConfirmdedemail.isConfirmedEmail){
+      return res.status(404).json({
+        message: "Email is not confirmed ,go to registeration page to verify your email again or check your email for verification mail",
+      });
+    }
+  }
+  if(!checkIsConfirmdedemail){
+    return res.status(404).json({
+      message: "Email is not confirmed ,go to registeration page to verify your email again or check your email for verification mail",
     });
   }
 
@@ -290,3 +307,77 @@ exports.ConfirmPaymentReceived = async (req, res) => {
 //       res.status(401).send({ err: "an error occured,unable to send" });
 //     });
 // };
+
+exports.PreRegister= async (req,res) =>{
+
+
+ const Email=req.body.email
+ const checkIfregistered = await UserSchema.findOne({Email})
+ if(checkIfregistered){
+  return res.status(404).json({ message: `this email ${Email} is already registered, you can login` });
+ }
+ if (! Email) {
+  return res.status(404).json({ message: "pls provide your email" });
+}
+if (!validateEmail(Email)) {
+  return res
+    .status(501)
+    .json({ message: `pls provide a valid email address, ${Email} is invalid `});
+}
+const isPreRegistered= await TempRegSchema.findOne({Email:Email})
+if(isPreRegistered){
+  const randomId =isPreRegistered.confirmationCode
+ await sendmail(Email,randomId,res)
+  
+//send email with token again
+
+}
+else{
+  let randomid = uniqid()
+  const newPregistered = new TempRegSchema({Email,confirmationCode:randomid})
+  await newPregistered.save()
+  //sendmail with new randomid
+  sendmail(Email,randomid,res)
+}
+
+
+}
+exports.verifyEmail= async (req,res)=>{
+  const token = req.query.token
+const Email = req.query.email
+// console.log(token,Email)
+if (!Email) {
+  return res.status(404).json({ message: "url is invalid" });
+}
+if (!token) {
+  return res.status(404).json({ message: "url is invalid" });
+}
+const checkIfRegistered=await UserSchema.findOne({Email})
+if(checkIfRegistered){
+  return res.status(501).json({ message: "you have already completed registration,no need for more verificaion, you can login" });
+}
+try{
+  const newUser= await TempRegSchema.findOne({Email:Email})
+if(newUser){
+if (newUser.confirmationCode===token){
+newUser.isConfirmedEmail=true
+await newUser.save()
+return res.status(200).json({ message: `${Email} is now verified, you will be redirected to registeration page`,userData:{email:Email} });
+}
+else{
+  return res.status(404).json({ message: "token not valid for provided email" });
+}
+
+}
+else{
+  return res.status(404).json({ message: "email not valid, try to verify email again" });
+}
+}
+catch(err){
+  return res.status(501).json({ message: "error occured " });
+}
+// catch(err=>{
+//   return res.status(501).json({ message: "error occured " });
+// })
+
+}
