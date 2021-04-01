@@ -30,7 +30,7 @@ const UserSchema = new Schema({
   bank_Acct_Number: { type: String },
   paymentConfirmed: { type: Boolean, default: false },
   email_confirmed:{ type: Boolean, default: false },
-  referrals: [{ _id: String, fullName: String, Email: String ,mobile:Number}], //first generation ,i.e 2 people/i introduced
+  referrals: [{ _id: String, fullName: String, Email: String ,mobile:String}], //first generation ,i.e 2 people/i introduced
   downLiners: [
     {
       _id: String,
@@ -38,7 +38,7 @@ const UserSchema = new Schema({
       Email: String,
       paymentStatus: Boolean,
       evidenImageUri: String,
-      mobile:Number,
+      mobile:String,
       introducedBy:String
     },
   ], //downliners is 2cond generations of referals 4people
