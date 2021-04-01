@@ -20,7 +20,7 @@ const UserSchema = new Schema({
   level: { type: Number, default: 1 }, //level 1 =fire,2=wind,3=water//id downliners length>0 it becomes water(gifted)
   referralCode: { type: String, default: makeid },
   referrerCode: { type: String }, //introduced by
-  mobile: { type: Number },
+  mobile: { type: String },
   pay_to_BankName: { type: String },
   pay_to_BankNumber: { type: String },
   pay_to__mobile: { type: Number },

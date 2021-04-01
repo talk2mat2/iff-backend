@@ -66,6 +66,11 @@ exports.Register = async (req, res) => {
   if (!mobile) {
     return res.status(404).json({ message: "pls provide a valid phone number" });
   }
+  if(mobile){
+    if(!/^[0-9,+]+$/.test(mobile)){
+      return res.status(501).json({ message: `pls provide a valid phone number ,${mobile} is invalid` });
+     }
+  }
   if (!validateEmail(Email)) {
     return res
       .status(404)
