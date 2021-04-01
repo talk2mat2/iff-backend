@@ -23,7 +23,7 @@ const UserSchema = new Schema({
   mobile: { type: String },
   pay_to_BankName: { type: String },
   pay_to_BankNumber: { type: String },
-  pay_to__mobile: { type: Number },
+  pay_to__mobile: { type: String },
   pay_to_BankUserName: { type: String },
   pay_to__id: { type: String },
   bank_Name: { type: String },
