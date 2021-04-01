@@ -30,6 +30,7 @@ const UserSchema = new Schema({
   bank_Acct_Number: { type: String },
   paymentConfirmed: { type: Boolean, default: false },
   email_confirmed:{ type: Boolean, default: false },
+  mobile_confirmed:{ type: Boolean, default: false },
   referrals: [{ _id: String, fullName: String, Email: String ,mobile:String}], //first generation ,i.e 2 people/i introduced
   downLiners: [
     {
