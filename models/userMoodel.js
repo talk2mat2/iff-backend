@@ -26,12 +26,13 @@ const UserSchema = new Schema({
   pay_to__mobile: { type: String },
   pay_to_BankUserName: { type: String },
   pay_to__id: { type: String },
+  isAdmin: { type: Boolean, default: false },
   bank_Name: { type: String },
   bank_Acct_Number: { type: String },
   paymentConfirmed: { type: Boolean, default: false },
-  email_confirmed:{ type: Boolean, default: false },
-  mobile_confirmed:{ type: Boolean, default: false },
-  referrals: [{ _id: String, fullName: String, Email: String ,mobile:String}], //first generation ,i.e 2 people/i introduced
+  email_confirmed: { type: Boolean, default: false },
+  mobile_confirmed: { type: Boolean, default: false },
+  referrals: [{ _id: String, fullName: String, Email: String, mobile: String }], //first generation ,i.e 2 people/i introduced
   downLiners: [
     {
       _id: String,
@@ -39,8 +40,8 @@ const UserSchema = new Schema({
       Email: String,
       paymentStatus: Boolean,
       evidenImageUri: String,
-      mobile:String,
-      introducedBy:String
+      mobile: String,
+      introducedBy: String,
     },
   ], //downliners is 2cond generations of referals 4people
 });

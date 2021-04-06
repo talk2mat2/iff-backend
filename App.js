@@ -4,6 +4,7 @@ const connectDB = require("./db/connection");
 const cors = require("cors");
 const UserRoutes = require("./routes/userroutes");
 const UploadRoutes = require("./routes/UploadRoutes");
+const PreRegisterRoute = require("./routes/PreRegisterRoute");
 
 const path = require("path");
 
@@ -19,6 +20,7 @@ App.set("views", path.join(__dirname, "views"));
 App.set("view engine", "ejs");
 App.use("/users", UserRoutes);
 App.use("/users", UploadRoutes);
+App.use("/users", PreRegisterRoute);
 App.use(express.urlencoded({ limit: "20mb" }));
 App.get("/", (req, res) => {
   res.status(200).send({ message: "iff server" });

@@ -14,13 +14,15 @@ function makeid() {
 }
 
 const TempRegSchema = new Schema({
-
+  fullName: { type: String, required: true },
+  mobile: { type: String, required: true },
   Email: { type: String, required: true, unique: true },
   confirmationCode: { type: String, required: true, unique: true },
-  isConfirmedEmail:{type:Boolean,default:false}
-  
+  isConfirmedEmail: { type: Boolean, default: false },
+  idCardImageUri: { type: String, required: true },
+  termsImageUri: { type: String, required: true },
+  isApproved: { type: Boolean, default: false },
 });
 //if the confirm 4 payment, you remove yourself from the board
-
 
 module.exports = mongoose.model("TempRegSchema", TempRegSchema);

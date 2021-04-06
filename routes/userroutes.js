@@ -13,7 +13,14 @@ const {
   UpdateClient,
   ConfirmPaymentReceived,
   PreRegister,
-  verifyEmail
+  verifyEmail,
+  ListUsers,
+  SearchUsers,
+  DeleteUser,
+  ListRegRequest,
+  ApproveUser,
+  RejectRequest,
+  ListApproved,
 } = require("../controllers/user");
 
 Router.post("/login", Login);
@@ -24,5 +31,12 @@ Router.post("/ConfirmPaymentReceived", CheckUserAth, ConfirmPaymentReceived);
 Router.post("/UpdateMyAcctNumber", CheckUserAth, UpdateMyAcctNumber);
 Router.post("/PreRegister", PreRegister);
 Router.get("/verifyEmail", verifyEmail);
+Router.get("/ListUsers", CheckUserAth, ListUsers);
+Router.get("/SearchUsers", CheckUserAth, SearchUsers);
+Router.get("/DeleteUser", CheckUserAth, DeleteUser);
+Router.get("/ListRegRequest", CheckUserAth, ListRegRequest);
+Router.get("/ApproveUser", CheckUserAth, ApproveUser);
+Router.get("/RejectRequest", CheckUserAth, RejectRequest);
+Router.get("/ListApproved", CheckUserAth, ListApproved);
 
 module.exports = Router;
