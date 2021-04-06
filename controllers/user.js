@@ -607,6 +607,11 @@ exports.DeleteUser = async (req, res) => {
         await UserSchema.findById(deleteId)
           .then(async (user) => {
             if (user) {
+              if (user.isAdmin) {
+                return res
+                  .status(401)
+                  .json({ message: "Sorry, admin account can not be deleted" });
+              }
               //although we need to check if the users has a refferrer before going to the next step but i just omited it
               //because every person must have a referrer except admin
               const UsersReferrer = await UserSchema.findOne({
