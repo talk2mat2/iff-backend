@@ -27,7 +27,7 @@ exports.CheckUserAth = async function (req, res, next) {
 // .catch((err) => console.log(err)),
 const selDestruct = async (user, userid) => {
   console.log(user);
-  if (user && user.downLiners.length > 3) {
+  if (user && user.downLiners.length > 3 && !user.isAdmin) {
     let completed = 0;
     user.downLiners.map((givers) => {
       if (givers.paymentStatus === true) {
