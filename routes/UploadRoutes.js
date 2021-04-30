@@ -86,7 +86,7 @@ Router.post(
               public_id: `image/${req.body.id}/${uniqueFilename}`,
               tags: `image`,
             },
-            function (err, image) {
+            async function (err, image) {
               if (err) {
                 console.log(err);
                 return res.send({
@@ -112,7 +112,14 @@ Router.post(
                   // this.UpdateClient(req, res);
                 }
               });
-
+              const params = { evidenImageUri: image.secure_url };
+              await UserSchema.findByIdAndUpdate(
+                { _id: payerId },
+                {
+                  $set: params,
+                },
+                { new: true, useFindAndModify: false }
+              );
               return res
                 .status(200)
                 .send({ response: "your payment evidence has been sent" });

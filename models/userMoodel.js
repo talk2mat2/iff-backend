@@ -28,10 +28,24 @@ const UserSchema = new Schema({
   pay_to__id: { type: String },
   isAdmin: { type: Boolean, default: false },
   bank_Name: { type: String },
+  evidenImageUri: { type: String },
   bank_Acct_Number: { type: String },
   paymentConfirmed: { type: Boolean, default: false },
+  paymentConfirmed_recycle: { type: Boolean, default: false },
   email_confirmed: { type: Boolean, default: false },
   mobile_confirmed: { type: Boolean, default: false },
+  recycle_level: { type: Number, default: 0 },
+  recycle_level_members: [
+    {
+      _id: { type: String, unique: true },
+      fullName: String,
+      Email: String,
+      paymentStatus_recycle: Boolean,
+      evidenImageUri: String,
+      mobile: String,
+      introducedBy: String,
+    },
+  ],
   referrals: [{ _id: String, fullName: String, Email: String, mobile: String }], //first generation ,i.e 2 people/i introduced
   downLiners: [
     {

@@ -12,6 +12,7 @@ const {
   UpdateMyAcctNumber,
   UpdateClient,
   ConfirmPaymentReceived,
+  ConfirmRecyclePaymentReceived,
   PreRegister,
   verifyEmail,
   ListUsers,
@@ -21,6 +22,7 @@ const {
   ApproveUser,
   RejectRequest,
   ListApproved,
+  ListFirstMatchedRecyclers,
 } = require("../controllers/user");
 
 Router.post("/login", Login);
@@ -28,6 +30,11 @@ Router.get("/updateClient", CheckUserAth, UpdateClient);
 
 Router.post("/Register", Register);
 Router.post("/ConfirmPaymentReceived", CheckUserAth, ConfirmPaymentReceived);
+Router.post(
+  "/ConfirmRecyclePaymentReceived",
+  CheckUserAth,
+  ConfirmRecyclePaymentReceived
+);
 Router.post("/UpdateMyAcctNumber", CheckUserAth, UpdateMyAcctNumber);
 Router.post("/PreRegister", PreRegister);
 Router.get("/verifyEmail", verifyEmail);
@@ -38,5 +45,10 @@ Router.get("/ListRegRequest", CheckUserAth, ListRegRequest);
 Router.get("/ApproveUser", CheckUserAth, ApproveUser);
 Router.get("/RejectRequest", CheckUserAth, RejectRequest);
 Router.get("/ListApproved", CheckUserAth, ListApproved);
+Router.get(
+  "/ListFirstMatchedRecyclers",
+  CheckUserAth,
+  ListFirstMatchedRecyclers
+);
 
 module.exports = Router;

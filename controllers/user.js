@@ -254,8 +254,10 @@ exports.UpdateMyAcctNumber = async (req, res) => {
 };
 
 exports.UpdateClient = (req, res) => {
+  console.log("updateclient called");
   UserSchema.findById(req.body.id)
     .then((user) => {
+      // await selDestruct(user, user._id);
       return res.json({
         userdata: user,
       });
@@ -285,6 +287,42 @@ exports.ConfirmPaymentReceived = async (req, res) => {
           UserSchema.findById(payerId)
             .then(async (resdata) => {
               resdata.paymentConfirmed = true;
+              await resdata.save();
+            })
+            .catch((err) => {
+              console.log(err);
+              return res.status(501).json({ message: "an error occured" });
+            });
+          this.UpdateClient(req, res);
+        }
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      return res
+        .status(404)
+        .json({ message: "an error occured try again or contact admin" });
+    });
+};
+exports.ConfirmRecyclePaymentReceived = async (req, res) => {
+  const { payerId } = req.body;
+
+  if (!payerId) {
+    console.log("no payer id provided");
+    return res.status(404).json({ message: "pls provide your payerId" });
+  }
+  UserSchema.findById(req.body.id)
+    .then((user) => {
+      // console.log(user);
+      user.recycle_level_members.map(async (payers) => {
+        if (payers._id === payerId) {
+          // console.log(payers);
+          // payers[payers._Id].paymentStatus = true;
+          payers["paymentStatus_recycle"] = true;
+          await user.save();
+          UserSchema.findById(payerId)
+            .then(async (resdata) => {
+              resdata.paymentConfirmed_recycle = true;
               await resdata.save();
             })
             .catch((err) => {
@@ -768,5 +806,63 @@ exports.RejectRequest = async (req, res) => {
     })
     .catch((err) => {
       return res.status(401).json({ message: "Error occured try again later" });
+    });
+};
+
+//admin to list first macthed recyclers
+
+exports.ListFirstMatchedRecyclers = async (req, res) => {
+  console.log("list recycle boar");
+  const userId = req.body.id;
+  await UserSchema.findById(userId)
+    .then(async (adminUser) => {
+      if (!adminUser.isAdmin) {
+        return res.status(401).json({ message: "not authorized, admin only" });
+      }
+      if (adminUser.isAdmin) {
+        var pageNo = req.query.pageNo || 0;
+        const limit = 15;
+        var skip = pageNo * limit;
+        var totalCount;
+        await UserSchema.countDocuments(
+          {
+            pay_to_BankName: adminUser.bank_Name,
+            recycle_level: 1,
+            paymentConfirmed_recycle: false,
+          },
+          (err, count) => {
+            if (err) {
+              totalCount = 0;
+            } else {
+              totalCount = count;
+            }
+          }
+        );
+        // console.log(totalCount)
+        if (totalCount == 0) {
+          return res.status(404).send({ message: "no users found" });
+        }
+        UserSchema.find({
+          pay_to_BankName: adminUser.bank_Name,
+          recycle_level: 1,
+          paymentConfirmed_recycle: false,
+        })
+          .skip(skip)
+          .limit(limit)
+          .then(async (response) => {
+            // console.log(response.length);
+            // response.totalRecords=totalCount
+            return res
+              .status(200)
+              .send({ userData: response, totalCount, pageNo, limit });
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.status(502).json({ message: "An error occured" });
     });
 };
